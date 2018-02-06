@@ -2,6 +2,7 @@ var express=require('express');
 var bodyparser=require('body-parser');
 var mongoose=require('mongoose');
 var {app1}=require('./todos');
+var {ObjectId}=require('mongodb');
 
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost:27017/TodoApp');
@@ -34,6 +35,30 @@ app.get('/todos',(req,res)=>
 	{
 		res.status(400).send(err);
 	});
+});
+
+app.get('/todos/:id',(req,res)=>
+{
+	var id=req.params.id;
+	if(!ObjectId.isValid(id))
+	{  var text1='No id is found';
+		res.status(404).send({text1});
+	}
+
+     	app1.findById(id).then((todos)=>
+		{
+			if(todos)
+			{
+				res.send(todos);
+			}
+			else
+			{
+				res.status(404).send();
+			}
+		},(err)=>
+		{
+			res.status(400).send(err);
+		});
 });
 
 app.listen(3000,()=>
