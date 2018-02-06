@@ -4,8 +4,18 @@ const required=require('supertest');
 const {app1}=require('./todos');
 const {app}=require('./server');
 
+const sam=[{
+	text:'Sambhav',
+	email:'kumar.jain2376@gmail.com'
+},{
+	text:'SamJain',
+	email:'samjain15291@gmail.com'
+}];
 beforeEach((done)=>{
-app1.remove({}).then(()=>done());
+app1.remove({}).then(()=>
+	{
+		return app1.insertMany(sam);
+	}).then(()=>done());
 });
 describe('POST /todos',()=>
 {
@@ -28,7 +38,7 @@ describe('POST /todos',()=>
 			}
 			app1.find().then((todos)=>
 			{
-				expect(todos.length).toBe(1);
+				expect(todos.length).toBe(3);
 				expect(todos[0].text2).toBe(text2);
 				done();
 			}).catch((e)=>done(e));
@@ -46,10 +56,20 @@ describe('POST /todos',()=>
 			}
 			app1.find().then((todos)=>
 			{
-				expect(todos.length).toBe(0);
+				expect(todos.length).toBe(2);
 				done();
 			}).catch((e)=>
 			done(e));
 		});
 	});
 });
+describe('GET/ todos',()=>
+	{
+		it('it should be done',(done)=>
+{
+required(app).get('/todos').expect(200).expect((res)=>
+{
+	expect(res.body.todos.length).toBe(2);
+}).end(done);
+});
+	});
