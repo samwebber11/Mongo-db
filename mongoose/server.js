@@ -6,7 +6,7 @@ var {ObjectId}=require('mongodb');
 
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost:27017/TodoApp');
-
+var port=process.env.PORT || 3000;
 var app=express();
 app.use(bodyparser.json());
 
@@ -61,9 +61,34 @@ app.get('/todos/:id',(req,res)=>
 		});
 });
 
-app.listen(3000,()=>
+app.delete('/todos/:id',(req,res)=>
 {
-	console.log('Starting port 3000');
+	var id=req.params.id;
+	if(!ObjectId.isValid(id))
+	{
+		var text1='No id is found';
+		return res.status(404).send({text1});
+	}
+	app1.findByIdAndRemove(id).then((todos)=>
+	{
+		if(todos)
+		{
+			return res.send(todos);
+		}
+		else
+		{
+			res.status(404).send();
+		}
+	},(err)=>
+	{
+		res.status(400).send(err);
+	});
+	}
+);
+
+app.listen(port,()=>
+{
+	console.log(`Starting port ${port}`);
 });
 
 module.exports={app};

@@ -1,13 +1,15 @@
 const expect=require('expect');
 const required=require('supertest');
-
+const {ObjectId}=require('mongodb')
 const {app1}=require('./todos');
 const {app}=require('./server');
 
 const sam=[{
+	_id:new ObjectId(),
 	text:'Sambhav',
 	email:'kumar.jain2376@gmail.com'
 },{
+	_id:new ObjectId(),
 	text:'SamJain',
 	email:'samjain15291@gmail.com'
 }];
@@ -21,14 +23,14 @@ describe('POST /todos',()=>
 {
 	it('should create a new node',(done)=>
 	{
-		var text2="hey this sambhav";
+		var text="hey this sambhav";
 
 		required(app).
 		post('/todos')
-		.send({text2})
+		.send({text})
 		.expect((res)=>
 		{
-			expect(res.body.text2).toBe(text2);
+			expect(res.body.text).toBe(text);
 		}
 		).end((err,res)=>
 		{
@@ -73,3 +75,16 @@ required(app).get('/todos').expect(200).expect((res)=>
 }).end(done);
 });
 	});
+describe('GET/todos/:id',()=>
+{
+	it('it should be cleared',(done)=>
+	{
+		required(app).
+		get(`/todos/${sam[0]._id.toHexString()}`).
+		expect(200).
+		expect((res)=>
+		{
+			expect(res.body.todos.text).toBe(sam[0].text);
+		}).end(done);
+	});
+});
