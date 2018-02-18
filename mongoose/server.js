@@ -1,3 +1,4 @@
+const lodash=require('lodash');
 var express=require('express');
 var bodyparser=require('body-parser');
 var mongoose=require('mongoose');
@@ -21,6 +22,7 @@ app.post('/todos',(req,res)=>
 		res.send(docs);
 	},(err)=>
 	{
+
 		res.status(400).send(err);
 	});
 });
@@ -60,6 +62,40 @@ app.get('/todos/:id',(req,res)=>
 			res.status(400).send(err);
 		});
 });
+app.patch('/todos/:id',(req,res)=>
+{
+	var id=req.params.id;
+	var body=lodash.pick(req.body,['text','completed']);
+	if(!ObjectId.isValid(id))
+	{
+		var text1="no id is found";
+		return res.status(404).send({text1});
+	}
+	if(lodash.isBoolean(body.completed) && (body.completed))
+	{
+	 body.completedBy=new Date().getTime();
+	}
+	else
+	{
+		body.completed=false;
+		body.completedBy=null;
+	}
+
+	app1.findByIdAndUpdate(id,{$set:body},{new:true}).then((todos)=>
+	{
+		if(todos)
+		{
+			return res.send(todos);
+		}
+		else
+		{
+			res.status(404).send();
+		}
+	},(err)=>
+	{
+		res.status(400).send(err);
+	});
+});
 
 app.delete('/todos/:id',(req,res)=>
 {
@@ -85,6 +121,22 @@ app.delete('/todos/:id',(req,res)=>
 	});
 	}
 );
+app.post('/todos1',(req,res)=>
+{
+	var body=lodash.pick(req.body,['email','password','text']);
+	var user=new app1(body);
+	user.save().then(()=>
+	{
+		return user.generateAuthToken();
+		}).then((token)=>
+		{
+			res.header('x-auth',token).send(user);
+		}).catch((e)=>
+		{
+			console.log(e);
+			res.status(400).send(e);
+		});
+});
 
 app.listen(port,()=>
 {
