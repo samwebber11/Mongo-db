@@ -4,7 +4,7 @@ var bodyparser=require('body-parser');
 var mongoose=require('mongoose');
 var {app1}=require('./todos');
 var {ObjectId}=require('mongodb');
-
+var {authenticate}=require('./middleware');
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost:27017/TodoApp');
 var port=process.env.PORT || 3000;
@@ -136,6 +136,13 @@ app.post('/todos1',(req,res)=>
 			console.log(e);
 			res.status(400).send(e);
 		});
+});
+
+
+app.get('/todos1/me',authenticate,(req,res)=>
+{
+	res.send(req.user);
+
 });
 
 app.listen(port,()=>
