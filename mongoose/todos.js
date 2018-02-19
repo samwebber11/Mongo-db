@@ -2,6 +2,7 @@ const mongoose=require('mongoose');
 var validate=require('validator');
 const lodash=require('lodash');
 const jwt=require('jsonwebtoken');
+var becrypt=require('bcryptjs');
 
 var user=new mongoose.Schema({
 	text:{
@@ -100,6 +101,26 @@ user.statics.findByToken=function(token)
 		'tokens.access':'auth'
 	});
 };
+
+user.pre('save',function(next)
+{
+	var user1=this;
+	if(user1.isModified('password'))
+	{
+		becrypt.genSalt(10,(err,salt)=>
+		{
+			becrypt.hash(user1.password,salt,(err,hash)=>
+			{
+				user1.password=hash;
+				next();
+			});
+		});
+	}
+	else
+	{
+		next();
+	}
+});
 
 var app1=mongoose.model('Todo',user);
 module.exports={app1};
