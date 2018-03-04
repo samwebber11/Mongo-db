@@ -169,6 +169,16 @@ app.post('/todos1/login',(req,res)=>
 	});
 });
 
+app.delete('/todos1/delete',authenticate,(req,res)=>
+{
+	req.user.removeToken(req.token).then(()=>{
+		res.status(200).send();
+	},()=>
+	{
+		res.status(400).send();
+	});
+});
+
 app.listen(port,()=>
 {
 	console.log(`Starting port ${port}`);

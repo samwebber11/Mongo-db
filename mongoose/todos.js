@@ -129,6 +129,20 @@ user.statics.findByCredentials=function(email,password)
 	});
 };
 
+
+user.methods.removeToken=function(token)
+{
+var user1=this;
+return user1.update({
+	$pull:
+	{
+		tokens:
+		{
+			token:token
+		}
+	}
+});
+};
 user.pre('save',function(next)
 {
 	var user1=this;
