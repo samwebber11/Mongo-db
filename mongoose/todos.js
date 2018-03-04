@@ -1,8 +1,8 @@
-const mongoose=require('mongoose');
-var validate=require('validator');
+ const mongoose=require('mongoose');
+const validate=require('validator');
 const lodash=require('lodash');
 const jwt=require('jsonwebtoken');
-var becrypt=require('bcryptjs');
+const becrypt=require('bcryptjs');
 
 var user=new mongoose.Schema({
 	text:{
@@ -73,7 +73,7 @@ user.methods.generateAuthToken=function(){
 		token
 	});
 
-	return user.save().then((user)=>
+	return user.save().then(()=>
 	{
 		return token;
 	});
@@ -99,6 +99,33 @@ user.statics.findByToken=function(token)
 		'_id':decoded._id,
 		'tokens.token':token,
 		'tokens.access':'auth'
+	});
+};
+user.statics.findByCredentials=function(email,password)
+{
+	var user1=this;
+
+	return user1.findOne({email}).then((user)=>
+	{
+		if(!user)
+		{
+			return Promise.reject();
+		}
+
+		return new Promise((resolve,reject)=>
+		{
+			becrypt.compare(password,user.password,(err,res)=>
+			{
+				if(res)
+				{
+					resolve(user);
+				}
+				else
+				{
+					reject();
+				}
+			});
+		});
 	});
 };
 

@@ -1,16 +1,17 @@
-const lodash=require('lodash');
+var lodash=require('lodash');
 var express=require('express');
 var bodyparser=require('body-parser');
-var mongoose=require('mongoose');
+console.log('I m stunt');
+var mongoose1=require('mongoose');
 var {app1}=require('./todos');
 var {ObjectId}=require('mongodb');
 var {authenticate}=require('./middleware');
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/TodoApp');
+mongoose1.Promise=global.Promise;
+mongoose1.connect('mongodb://localhost:27017/Todo');
 var port=process.env.PORT || 3000;
 var app=express();
 app.use(bodyparser.json());
-
+console.log("plz let me start");
 app.post('/todos',(req,res)=>
 {
 	var todo=new app1({
@@ -26,6 +27,7 @@ app.post('/todos',(req,res)=>
 		res.status(400).send(err);
 	});
 });
+console.log('Plz start up');
 
 app.get('/todos',(req,res)=>
 {
@@ -123,19 +125,25 @@ app.delete('/todos/:id',(req,res)=>
 );
 app.post('/todos1',(req,res)=>
 {
+	
 	var body=lodash.pick(req.body,['email','password','text']);
+	
 	var user=new app1(body);
+	
 	user.save().then(()=>
 	{
+		
 		return user.generateAuthToken();
 		}).then((token)=>
 		{
+			
 			res.header('x-auth',token).send(user);
 		}).catch((e)=>
 		{
 			console.log(e);
 			res.status(400).send(e);
 		});
+		
 });
 
 
@@ -143,6 +151,22 @@ app.get('/todos1/me',authenticate,(req,res)=>
 {
 	res.send(req.user);
 
+});
+
+app.post('/todos1/login',(req,res)=>
+{
+	var body=lodash.pick(req.body,['email','password','text']);
+
+	app1.findByCredentials(body.email,body.password).then((user)=>
+	{
+		return user.generateAuthToken().then((token)=>
+		{
+			res.header('x-auth',token).send(user);
+		});
+	}).catch((e)=>
+	{
+		res.status(400).send(e);
+	});
 });
 
 app.listen(port,()=>
